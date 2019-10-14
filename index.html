@@ -3,14 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/defa.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 </head>
 
 <body>
     <h1>Pythonic Code Activity</h1>
+    
+    <div id="totalBar" class="w3-light-grey" style="height:25px">
+        <div id="myBar" class="w3-container w3-blue" style="width:0%; height:25px"></div>
+    </div>
     <div id="app">
+        <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
         <md-tabs>
             <md-tab v-for="question in questions" :key=question.name
                 v-bind:md-label=question.name+question.status>
@@ -34,6 +40,7 @@
         props: ['layoutThings', 'questionName'],
         data: function () {
             return {
+                amount:0,
                 answer: "",
                 layoutItems: this.layoutThings,
                 cmOptions: {
@@ -49,6 +56,16 @@
         },
         methods: {
             postContents: function () {
+                // only when submit question successfully
+                var totalElem = document.getElementById("totalBar");
+                var elem = document.getElementById("myBar");
+                var totalPos = totalElem.getBoundingClientRect();
+                var progressPos = elem.getBoundingClientRect();
+                var totalWidth = totalPos.width;
+                var progressWidth = progressPos.width;
+                progressWidth = progressWidth + (totalWidth/10);
+                elem.style.width = progressWidth; 
+                this.amount = this.amount + 10;
                 // comment: leaving the gatewayUrl empty - API will post back to itself
                 const gatewayUrl = '';
                 fetch(gatewayUrl, {
@@ -70,8 +87,8 @@
             `<div class="md-layout  md-gutter">
             
             <div id="cardGroupCreator" class="md-layout-item md-size-50">
-              
-                 <md-card> <!-- Examples -->
+                <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
+                <md-card> <!-- Examples -->
                     <md-card-header>
                         <md-card-header-text>
                             <div class="md-title">{{layoutItems[0].header}}</div>
@@ -164,6 +181,7 @@
         el: '#app',
         data: function () {
             return {
+                amount: 100,
                 questions: [
                     {
                         name: "question 1", layoutItems: [
@@ -254,6 +272,8 @@
             }
         }
     })
+
+    
 </script>
 
 <style lang="scss" scoped>
