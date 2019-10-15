@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/defa.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 </head>
 
@@ -21,13 +21,51 @@
     </div>
     </div>
 </body>
+
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/vue-material@beta"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/python/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-codemirror@4.0.6/dist/vue-codemirror.min.js"></script>
 
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
 <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyChWkMVfXJ-p42UrU8AXjk33U3cd9ZZepo",
+        authDomain: "project-frame.firebaseapp.com",
+        databaseURL: "https://project-frame.firebaseio.com",
+        projectId: "project-frame",
+        storageBucket: "project-frame.appspot.com",
+        messagingSenderId: "418876305215",
+        appId: "1:418876305215:web:2a1e55e9e295df40e16d8a"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    console.log(firebase);
+
+    var database = firebase.database();
+    var ref = database.ref('Questions');
+    ref.on('value', gotData, errData);
+    
+    function gotData(data) {
+        var questions = data.val();
+        // var keys = Object.keys(questions);
+        var testHeader = questions['Question 1'].Header;
+    }
+    
+    function errData(err) {
+        console.log('Error!');
+        console.log(err);
+    }
+    
     Vue.use(VueMaterial.default)
     Vue.use(window.VueCodemirror)
     Vue.component('doctest-activity', {
@@ -167,7 +205,7 @@
                 questions: [
                     {
                         name: "question 1", layoutItems: [
-                            { header: "Examples", subHeader: 'byteCodeChecker() and codeInfoChecker() are our functions used in these tests', vModel: ">>> ifFunc(True,2)\n2 \n>>> ifFunc(bool('a'),11)\n11 \n>>> byteCodeChecker(ifFunc, 'ARGREPR', '==')\n'== not found'" },
+                            { header: "Testing", subHeader: 'byteCodeChecker() and codeInfoChecker() are our functions used in these tests', vModel: ">>> ifFunc(True,2)\n2 \n>>> ifFunc(bool('a'),11)\n11 \n>>> byteCodeChecker(ifFunc, 'ARGREPR', '==')\n'== not found'" },
                             { header: "Editable Code Block", subHeader: 'Your code goes below. Avoid double quotes.', vModel: "def ifFunc(a,b):\n if a == True:  \n  return b\n" },
                             { header: "Introduction", subHeader: '', vModel: "When checking if a condition is True, prefer relying on the implicit “truthiness” of the object in the conditional statement using \nif object:\nthan\nif object == True:" }
                         ], status: " 🔴"
