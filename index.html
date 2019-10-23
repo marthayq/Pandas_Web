@@ -3,14 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 </head>
 
 <body>
-    <h1>Pythonic Code Activity</h1>
+    <h1>pandas for everyone. 🐼</h1>
+    
+    <div id="totalBar" class="w3-light-grey" style="height:25px">
+        <div id="myBar" class="w3-container w3-light-blue" style="width:0%; height:25px"></div>
+    </div>
     <div id="app">
+        <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
         <md-tabs>
             <md-tab v-for="question in questions" :key=question.name
                 v-bind:md-label=question.name+question.status>
@@ -21,57 +27,20 @@
     </div>
     </div>
 </body>
-
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/vue-material@beta"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/python/python.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-codemirror@4.0.6/dist/vue-codemirror.min.js"></script>
 
-
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-database.js"></script>
-
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
-
 <script>
-    // Your web app's Firebase configuration
-    var firebaseConfig = {
-        apiKey: "AIzaSyChWkMVfXJ-p42UrU8AXjk33U3cd9ZZepo",
-        authDomain: "project-frame.firebaseapp.com",
-        databaseURL: "https://project-frame.firebaseio.com",
-        projectId: "project-frame",
-        storageBucket: "project-frame.appspot.com",
-        messagingSenderId: "418876305215",
-        appId: "1:418876305215:web:2a1e55e9e295df40e16d8a"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    console.log(firebase);
-
-    var database = firebase.database();
-    var ref = database.ref('Questions');
-    ref.on('value', gotData, errData);
-    
-    function gotData(data) {
-        var questions = data.val();
-        // var keys = Object.keys(questions);
-        var testHeader = questions['Question 1'].Header;
-    }
-    
-    function errData(err) {
-        console.log('Error!');
-        console.log(err);
-    }
-    
     Vue.use(VueMaterial.default)
     Vue.use(window.VueCodemirror)
     Vue.component('doctest-activity', {
         props: ['layoutThings', 'questionName'],
         data: function () {
             return {
+                amount:0,
                 answer: "",
                 layoutItems: this.layoutThings,
                 cmOptions: {
@@ -87,6 +56,16 @@
         },
         methods: {
             postContents: function () {
+                // only when submit question successfully
+                var totalElem = document.getElementById("totalBar");
+                var elem = document.getElementById("myBar");
+                var totalPos = totalElem.getBoundingClientRect();
+                var progressPos = elem.getBoundingClientRect();
+                var totalWidth = totalPos.width;
+                var progressWidth = progressPos.width;
+                progressWidth = progressWidth + (totalWidth/10);
+                elem.style.width = progressWidth; 
+                this.amount = this.amount + 10;
                 // comment: leaving the gatewayUrl empty - API will post back to itself
                 const gatewayUrl = '';
                 fetch(gatewayUrl, {
@@ -108,8 +87,45 @@
             `<div class="md-layout  md-gutter">
             
             <div id="cardGroupCreator" class="md-layout-item md-size-50">
-              
-                 <md-card> <!-- Examples -->
+                <md-table v-model="layoutItems[2].data" md-sort="name" md-sort-order="asc" md-card md-fixed-header>
+                  <md-table-toolbar>
+                        <h3>{{layoutItems[2].header}}</h3>
+                  </md-table-toolbar>
+            
+                  <md-table-row slot="md-table-row" slot-scope="{ item }">
+                    <md-table-cell md-label="ID" md-sort-by="id" md-numeric>{{ item.id }}</md-table-cell>
+                    <md-table-cell md-label="NAME" md-sort-by="name">{{ item.name }}</md-table-cell>
+                    <md-table-cell md-label="GENDER" md-sort-by="gender">{{ item.gender }}</md-table-cell>
+                    <md-table-cell md-label="AGE" md-sort-by="age">{{ item.age }}</md-table-cell>
+                    <md-table-cell md-label="CHILDREN" md-sort-by="children">{{ item.children }}</md-table-cell>
+                    <md-table-cell md-label="RESIDENCE" md-sort-by="residence">{{ item.residence }}</md-table-cell>
+                  </md-table-row>
+                </md-table>
+                
+                <md-card>
+                </md-card>
+                
+                <md-table v-model="layoutItems[3].data" md-sort="name" md-sort-order="asc" md-card md-fixed-header>
+                  <md-table-toolbar>
+                        <h3>{{layoutItems[3].header}}</h3>
+                  </md-table-toolbar>
+            
+                  <md-table-row slot="md-table-row" slot-scope="{ item }">
+                    <md-table-cell md-label="ID" md-sort-by="id" md-numeric>{{ item.id }}</md-table-cell>
+                    <md-table-cell md-label="NAME" md-sort-by="name">{{ item.name }}</md-table-cell>
+                    <md-table-cell md-label="GENDER" md-sort-by="gender">{{ item.gender }}</md-table-cell>
+                    <md-table-cell md-label="AGE" md-sort-by="age">{{ item.age }}</md-table-cell>
+                    <md-table-cell md-label="CHILDREN" md-sort-by="children">{{ item.children }}</md-table-cell>
+                    <md-table-cell md-label="RESIDENCE" md-sort-by="residence">{{ item.residence }}</md-table-cell>
+                  </md-table-row>
+                </md-table>
+                
+                
+            </div>
+            
+            
+            <div id="cardGroupPreview" class="md-layout-item md-size-50">
+                <md-card> <!-- Examples -->
                     <md-card-header>
                         <md-card-header-text>
                             <div class="md-title">{{layoutItems[0].header}}</div>
@@ -122,36 +138,7 @@
                         </md-field>
                     </md-card-content>
                 </md-card>
-                    
-                <md-card>
-                    <h1> Original Dataframe </h1>
-                    <img src="https://www.w3resource.com/w3r_images/pandas-data-structure.svg" alt="Smiley face" height="555" width="555">
-                </md-card>
                 
-                <md-card>
-                    <h1> Original Dataframe </h1>
-                    <img src="https://www.w3resource.com/w3r_images/pandas-data-structure.svg" alt="Smiley face" height="555" width="555">
-                </md-card>
-                
-                <md-card>
-                    <md-card-header>
-                        <md-card-header-text>
-                            <div class="md-title">{{layoutItems[2].header}}</div>
-                            <div class="md-subhead">{{layoutItems[2].subHeader}}</div>
-                        </md-card-header-text>
-                    </md-card-header>
-                    <md-card-content>
-                        <md-field>
-                            <md-textarea v-model="layoutItems[2].vModel" readonly></md-textarea>
-                        </md-field>
-                    </md-card-content>
-                </md-card>
-                
-            </div>
-            
-            
-            <div id="cardGroupPreview" class="md-layout-item md-size-50">
-            
                 <md-card>
                     <md-card-header>
                         <md-card-header-text>
@@ -202,12 +189,24 @@
         el: '#app',
         data: function () {
             return {
+                amount: 100,
                 questions: [
                     {
                         name: "question 1", layoutItems: [
-                            { header: "Testing", subHeader: 'byteCodeChecker() and codeInfoChecker() are our functions used in these tests', vModel: ">>> ifFunc(True,2)\n2 \n>>> ifFunc(bool('a'),11)\n11 \n>>> byteCodeChecker(ifFunc, 'ARGREPR', '==')\n'== not found'" },
-                            { header: "Editable Code Block", subHeader: 'Your code goes below. Avoid double quotes.', vModel: "def ifFunc(a,b):\n if a == True:  \n  return b\n" },
-                            { header: "Introduction", subHeader: '', vModel: "When checking if a condition is True, prefer relying on the implicit “truthiness” of the object in the conditional statement using \nif object:\nthan\nif object == True:" }
+                            { header: "Examples", subHeader: 'Objective: Learn how to filter dataframe by column value', vModel: "## Filter for female pandas only \n>>> original_df[original_df['GENDER']=='F'] \n \n## Filter for pandas living in the USA \n>>> original_df[original_df['RESIDENCE']=='USA'] \n " },
+                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "def ifFunc(a,b):\n if a == True:  \n  return b\n" },
+                            { header: "Original Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
+                                                                    {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
+                                                                    {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
+                                                                    {id: "4",name: "Bao Bao",gender: "F",age:"6",children: "No",residence:"China"},
+                                                                    {id: "5",name: "Da Mao",gender: "M",age:"11",children: "No",residence:"Canada"},
+                                                                    {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"},
+                                                                    {id: "7",name: "Tian Tian",gender: "F",age:"16",children: "No",residence:"UK"},
+                                                                    {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"}]},
+                            { header: "Expected Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
+                                                                    {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
+                                                                    {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"}
+                            ]}
                         ], status: " 🔴"
                     },
                     {
@@ -292,15 +291,17 @@
             }
         }
     })
+    
 </script>
 
 <style lang="scss" scoped>
     .md-card {
-        width: 90%;
-        margin: 20px;
+        width: 95%;
+        margin: 0px;
         display: inline-block;
         vertical-align: top;
-        min-height: 200px
+        min-height: 50px;
+        max-height: 400px
     }
     .md-card-content {
         padding-bottom: 16px !important;
@@ -316,7 +317,7 @@
         padding-right: 0px
     }
     #cardGroupPreview .md-card {
-        width: 90%;
+        width: 100%;
     }
     #cardGroupPreview {
         padding-left: 0px
@@ -343,7 +344,14 @@
         mix-blend-mode: darken
     }
     h1 {
-        padding: 20px;
+        background: #EDBC00;
+        color: #111;
+        font-family: 'Helvetica Neue', sans-serif; 
+        font-size: 40px; 
+        padding: 12px;
+        font-weight: bold; 
+        letter-spacing: -1px; 
+        line-height: 1;
         margin: auto;
         text-align: center
     }
