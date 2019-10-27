@@ -34,13 +34,12 @@ def lambda_handler(event, context):
         userSolution = parsedBodyContent["editable"]["0"] 
         
         original_df = pd.read_csv('https://frame-pandas.s3.amazonaws.com/pandas_data.csv')
-        print("Original Df", original_df)
-        
-        print("User Solution", userSolution)
         user_output_df = pd.eval(userSolution)
-        print("Big Problem", type(user_output_df))
-        print("Testing Output", user_output_df)
         userHtmlFeedback = user_output_df.to_html()
+        
+        # Question 1
+        right_answer = original_df[original_df['GENDER']=='F']
+        right_answer.equals(user_output_df)
         
         return {
             "statusCode": 200,
