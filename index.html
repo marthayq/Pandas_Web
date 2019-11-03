@@ -40,7 +40,7 @@
                 title: this.questionName,
                 num_try: 0,
                 html_result:"",
-                json_result:"",
+                python_result:"",
                 text_result:"",
                 cmOptions: {
                     mode: 'python',
@@ -73,13 +73,13 @@
                     this.answer = JSON.parse(JSON.stringify(data))
                     if (this.num_try < 3){
                         this.html_result = this.answer.htmlFeedback
-                        this.json_result = this.answer.jsonFeedback
+                        this.python_result = this.answer.pythonFeedback
                         this.text_result = this.answer.textFeedback
                     }
                     else{
                         this.num_try = 0;
                         this.html_result = "html_answer"
-                        this.json_result = "json asnwer"
+                        this.python_result = "python answer"
                         this.text_result = "text answer"
                     }
                     return this.$emit('questionhandler', { data, questionName: this.questionName })
@@ -175,13 +175,13 @@
                             <md-field>
                                 <md-tabs>
                                     <md-tab id="tab-htmlResults" md-label="HTML results">
-                                        <div v-html="answer.htmlFeedback" readonly></div>
+                                        <div v-html="html_result" readonly></div>
                                     </md-tab>
                                     <md-tab id="tab-pythonResults" md-label="Python results">
-                                        <md-textarea v-model="answer.pythonFeedback" readonly></md-textarea>
+                                        <md-textarea v-model="python_result" readonly></md-textarea>
                                     </md-tab>
                                     <md-tab id="tab-textResults" md-label="Solution">
-                                        <md-textarea v-model="answer.textFeedback" readonly></md-textarea>
+                                        <md-textarea v-model="text_result" readonly></md-textarea>
                                     </md-tab>
                                 </md-tabs>
                             </md-field>
