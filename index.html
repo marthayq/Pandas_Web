@@ -175,13 +175,13 @@
                             <md-field>
                                 <md-tabs>
                                     <md-tab id="tab-htmlResults" md-label="HTML results">
-                                        <div v-html="answer.htmlFeedback" readonly></div>
+                                        <md-textarea v-model="html_result" readonly></md-textarea>
                                     </md-tab>
-                                    <md-tab id="tab-pythonResults" md-label="Python results">
-                                        <md-textarea v-model="answer.pythonFeedback" readonly></md-textarea>
+                                    <md-tab id="tab-jsonResults" md-label="JSON results">
+                                        <md-textarea v-model="json_result" readonly></md-textarea>
                                     </md-tab>
-                                    <md-tab id="tab-textResults" md-label="Solution">
-                                        <md-textarea v-model="answer.textFeedback" readonly></md-textarea>
+                                    <md-tab id="tab-textResults" md-label="Text results">
+                                        <md-textarea v-model="text_result" readonly></md-textarea>
                                     </md-tab>
                                 </md-tabs>
                             </md-field>
