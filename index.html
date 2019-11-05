@@ -56,7 +56,7 @@
         methods: {
             postContents: function () {
                 // only when submit question successfully
-                this.amount = this.amount +10;
+
                 this.num_try = this.num_try + 1;
                 // comment: leaving the gatewayUrl empty - API will post back to itself
                 const gatewayUrl = '';
@@ -66,22 +66,29 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ shown: { 0: this.layoutItems[0].vModel }, editable: { 0: this.layoutItems[1].vModel } })
+                    body: JSON.stringify({ shown: { 0: this.layoutItems[0].vModel }, editable: { 0: this.layoutItems[1].vModel }, qname:{0: this.questionName} })
                 }).then(response => {
                     return response.json()
                 }).then(data => {
-                    this.answer = JSON.parse(JSON.stringify(data))
-                    if (this.num_try < 3){
-                        this.html_result = this.answer.htmlFeedback
-                        this.python_result = this.answer.pythonFeedback
-                        this.text_result = this.answer.textFeedback
+                    this.answer = JSON.parse(JSON.stringify(data));
+                    if(this.answer.isComplete == 1) {
+                        this.num_try = 0;
+                        this.html_result = this.answer.htmlFeedback;
+                        this.python_result = this.answer.pythonFeedback;
+                        this.text_result = "Congratulations!";
+                    }
+                    else if (this.num_try < 3){
+                        this.html_result = this.answer.htmlFeedback;
+                        this.python_result = this.answer.pythonFeedback;
+                        this.text_result = "Sorry, try again";
                     }
                     else{
                         this.num_try = 0;
-                        this.html_result = "html_answer"
-                        this.python_result = "python answer"
-                        this.text_result = "text answer"
+                        this.html_result = "html_answer";
+                        this.python_result = "python answer";
+                        this.text_result = this.answer.textFeedback;
                     }
+                    this.amount = this.answer.progress
                     return this.$emit('questionhandler', { data, questionName: this.questionName })
                 })
             }
