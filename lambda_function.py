@@ -2,17 +2,23 @@ import json
 import pandas as pd
 import boto3 as bt3
 import re
-    
+
+status_check = [0]*10    
 def lambda_handler(event, context):
     
     s3 = bt3.client('s3')
-    method = event.get('httpMethod',{})
+    
+    #csv_data_1 = s3.get_object(Bucket='frame-pandas', Key='Pandas_Q1.csv')
+    #print('CSV', csv_data_1)
+    #contents_1 = csv_data_1['Body'].read()
+    #print('Body', contents_1)
+    
+    method = event.get('httpMethod',{}) 
     
     with open('index.html', 'r') as f:
         indexPage = f.read()
-        
-    status_check = [0]*10 
-        
+    
+    
     if method == 'GET':
         return {
             "statusCode": 200,
@@ -25,33 +31,74 @@ def lambda_handler(event, context):
     if method == 'POST':
         bodyContent = event.get('body',{}) 
         parsedBodyContent = json.loads(bodyContent)
-        testCases = re.sub('&zwnj;.*&zwnj;','',parsedBodyContent["shown"]["0"], flags=re.DOTALL)
-        questionName = parsedBodyContent["qname"]["0"]
+        testCases = re.sub('&zwnj;.*&zwnj;','',parsedBodyContent["shown"]["0"], flags=re.DOTALL) 
         userSolution = parsedBodyContent["editable"]["0"] 
-        
-        # Reading the original dataframe from S3 
+        questionName = parsedBodyContent["qname"]["0"]
         original_df = pd.read_csv('https://frame-pandas.s3.amazonaws.com/pandas_data.csv')
-        default_df = original_df.copy()
-        
-        # Evaluating User Inputs
-        user_list = userSolution.splitlines()
-        user_list = [x for x in user_list if not x.startswith('#')]
-        for i in user_list:
-            original_df = pd.eval(i)
-        # if isinstance(user_output_df, pd.core.series.Series):
-        #    user_output_df = user_output_df.to_frame()
-        userHtmlFeedback = original_df.to_html()
-        
-        # Question 5
+        user_output_df = pd.eval(userSolution)
+        userHtmlFeedback = user_output_df.to_html()
         isComplete = 0
-        right_answer = default_df[default_df['CHILDREN']=='Yes']
-        right_answer_text = 'original_df[original_df[\'CHILDREN\']==\'Yes\']'
-        if right_answer.equals(original_df):
-            status_check[4]=1
-            isComplete = 1
-
-        progress = len([qn for qn in status_check if qn == 5])
+        if questionName == 'Selecting Rows':#Q1
+            right_answer = original_df.iloc[[1,4,9]]
+            right_answer_text = 'original_df.iloc[[1,4,9]]'
+            if(right_answer.equals(user_output_df)):
+                status_check[0]=1
+                isComplete = 1
+        elif questionName == 'Selecting Columns':#Q2
+            right_answer = original_df[['ID','NAME','RESIDENCE']]
+            right_answer_text = 'original_df[[\'ID\',\'NAME\',\'RESIDENCE\']]'
+            if(right_answer.equals(user_output_df)):
+                status_check[1]=1
+                isComplete = 1
+        elif questionName == 'Selecting Specific Cells':#Q3
+            right_answer = original_df.iloc[8]['NAME']
+            right_answer_text = 'original_df.iloc[8][\'NAME\']'
+            if(right_answer.equals(user_output_df)):
+                status_check[2]=1
+                isComplete = 1
+        elif questionName == 'Renaming Column Names':#Q4
+            right_answer = original_df.rename({'GENDER':'SEX','RESIDENCE':'ZOO'})
+            right_answer_text = 'original_df.rename({\'GENDER\':\'SEX\',\'RESIDENCE\':\'ZOO\'})'
+            if(right_answer.equals(user_output_df)):
+                status_check[3]=1
+                isComplete = 1
+        elif questionName == 'Filtering Data in Columns':#Q5
+            right_answer = original_df[original_df['CHILDREN']=='Yes']
+            right_answer_text = 'original_df[original_df[\'CHILDREN\']==\'Yes\']'
+            if(right_answer.equals(user_output_df)):
+                status_check[4]=1
+                isComplete = 1
+        elif questionName == 'Filtering Data based on Multiple Conditions':#Q6
+            right_answer = original_df[(original_df['CHILDREN']=='Yes')|(original_df['RESIDENCE']=='China')]
+            right_answer_text = 'original_df[(original_df[\'CHILDREN\']==\'Yes\')|(original_df[\'RESIDENCE\']==\'China\')]'
+            if(right_answer.equals(user_output_df)):
+                status_check[5]=1
+                isComplete = 1
+        elif questionName == 'Adding New Rows':#Q7
+            right_answer = original_df.append(pd.Series([11,'Tao Tao', 'M', 20, 'No', 'China'], index=original_df.columns), ignore_index=True)
+            right_answer_text = 'original_df.append(pd.Series([11,\'Tao Tao\', \'M\', 20, \'No\', \'China\'], index=original_df.columns), ignore_index=True)'
+            if(right_answer.equals(user_output_df)):
+                status_check[6]=1
+                isComplete = 1
+        elif questionName == 'Using Min and Max':#Q9
+            right_answer = original_df.min(axis = 1)
+            right_answer_text = 'original_df.min(axis = 1)'
+            if(right_answer.equals(user_output_df)):
+                status_check[8]=1
+                isComplete = 1
+        elif questionName == 'Multiplying and Dividing Column values':#Q10
+            right_answer = original_df[3] *=10
+            right_answer_text = 'original_df[3] *=10'
+            if(right_answer.equals(user_output_df)):
+                status_check[9]=1
+                isComplete = 1
         
+                
+
+
+        progress = status_check.count(1)
+        print(status_check)
+        print(progress)
         return {
             "statusCode": 200,
             "headers": {
