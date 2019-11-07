@@ -12,10 +12,12 @@
 <body>
     <h1>pandas for everyone. 🐼</h1>
     <div id="app">
+        <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
+        <input type="range" v-model.number="amount"> {{ amount }}%
         <md-steppers>
             <md-step v-for="question in questions" :key=question.name>
                 <doctest-activity v-bind:layout-things=question.layoutItems
-                    v-bind:question-name=question.name @questionhandler="toggleQuestionStatus" />
+                    v-bind:question-name=question.name @questionhandler="toggleQuestionStatus" @updateprog="updateProgress" />
             </md-step>
         </md-steppers>
     </div>
@@ -34,7 +36,7 @@
         props: ['layoutThings', 'questionName'],
         data: function () {
             return {
-                amount:0,
+                progress : 0,
                 answer: "",
                 layoutItems: this.layoutThings,
                 title: this.questionName,
@@ -56,7 +58,6 @@
         methods: {
             postContents: function () {
                 // only when submit question successfully
-
                 this.num_try = this.num_try + 1;
                 // comment: leaving the gatewayUrl empty - API will post back to itself
                 const gatewayUrl = '';
@@ -88,7 +89,8 @@
                         this.python_result = "python answer";
                         this.text_result = this.answer.textFeedback;
                     }
-                    this.amount = this.answer.progress
+                    this.progress = this.answer.progress * 10;
+                    this.$emit('updateprog', this.progress)
                     return this.$emit('questionhandler', { data, questionName: this.questionName })
                 })
             }
@@ -96,8 +98,8 @@
         template:
         `
         <div>
-        <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
-        <input type="range" v-model.number="amount"> {{ amount }}%
+        
+        
         <h2 class="title-name">{{title}}</h2> 
             <div class="md-layout  md-gutter">
                 <div id="cardGroupCreator" class="md-layout-item md-size-50">
@@ -204,7 +206,7 @@
         el: '#app',
         data: function () {
             return {
-                amount: 100,
+                amount:0,
                 questions: [
                     {
                         name: "Selecting Rows", layoutItems: [
@@ -429,6 +431,9 @@
                         :
                         this.questions.find(item => item.name === questionName).status = " 🔴"
                 }
+            },
+            updateProgress(progress){
+                this.amount = progress;
             }
         }
     })
