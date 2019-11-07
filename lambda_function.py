@@ -70,19 +70,19 @@ def lambda_handler(event, context):
                 status_check[3]=1
                 isComplete = 1
         elif questionName == 'Filtering Data in Columns':#Q5
-            right_answer = default_df[original_df['CHILDREN']=='Yes']
+            right_answer = default_df[default_df['CHILDREN']=='Yes']
             right_answer_text = 'original_df[original_df[\'CHILDREN\']==\'Yes\']'
             if(right_answer.equals(original_df)):
                 status_check[4]=1
                 isComplete = 1
         elif questionName == 'Filtering Data based on Multiple Conditions':#Q6
-            right_answer = default_df[(original_df['CHILDREN']=='Yes')|(original_df['RESIDENCE']=='China')]
+            right_answer = default_df[(default_df['CHILDREN']=='Yes')|(default_df['RESIDENCE']=='China')]
             right_answer_text = 'original_df[(original_df[\'CHILDREN\']==\'Yes\')|(original_df[\'RESIDENCE\']==\'China\')]'
             if(right_answer.equals(original_df)):
                 status_check[5]=1
                 isComplete = 1
         elif questionName == 'Adding New Rows':#Q7
-            right_answer = default_df.append(pd.Series([11,'Tao Tao', 'M', 20, 'No', 'China'], index=original_df.columns), ignore_index=True)
+            right_answer = default_df.append(pd.Series([11,'Tao Tao', 'M', 20, 'No', 'China'], index=default_df.columns), ignore_index=True)
             right_answer_text = 'original_df.append(pd.Series([11,\'Tao Tao\', \'M\', 20, \'No\', \'China\'], index=original_df.columns), ignore_index=True)'
             if(right_answer.equals(original_df)):
                 status_check[6]=1
