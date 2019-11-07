@@ -352,13 +352,23 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
-                            { header: "Expected Dataframe", data:[]}
+                            { header: "Expected Dataframe", data:[{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
+                                                                    {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
+                                                                    {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
+                                                                    {id: "4",name: "Bao Bao",gender: "F",age:"6",children: "No",residence:"China"},
+                                                                    {id: "5",name: "Da Mao",gender: "M",age:"11",children: "No",residence:"Canada"},
+                                                                    {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"},
+                                                                    {id: "7",name: "Tian Tian",gender: "F",age:"16",children: "No",residence:"UK"},
+                                                                    {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
+                                                                    {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
+                                                                    {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"},
+                                                                    {id: "11",name: "Tao Tao",gender: "M",age:"20",children: "No",residence:"China"}]}
                         ], status: " 🔴"
                     },
                     {
-                        name: "Adding New Columns", layoutItems: [
-                            { header: "Examples", subHeader: 'Objective: Learn how to add new data columns into dataframe', vModel: "## Creating a list that is converted into a column and added to the dataframe \n>>> weight = [115, 101, 112, 95, 98, 105, 120, 143, 110, 155]\n\n## Using 'weight' as the column name and equating it to the list\n>>> original_df['weight'] = weight\n "},
-                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Add a new column to the dataframe with your own values \n\n "},
+                        name: "Deleting rows", layoutItems: [
+                            { header: "Examples", subHeader: 'Objective: Learn how to delete rows from dataframe', vModel: "## Deleting second row from the dataframe \n>>> original_df.drop(original_df.index[1])\n "},
+                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Delete fifth row from the dataframe\n\n "},
                             { header: "Original Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
                                                                     {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
@@ -368,14 +378,22 @@
                                                                     {id: "7",name: "Tian Tian",gender: "F",age:"16",children: "No",residence:"UK"},
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
-                                                                    {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
-                            { header: "Expected Dataframe", data:[]}
+                                                                    {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA",}]},
+                            { header: "Expected Dataframe", data:[{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
+                                                                    {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
+                                                                    {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
+                                                                    {id: "4",name: "Bao Bao",gender: "F",age:"6",children: "No",residence:"China"},
+                                                                    {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"},
+                                                                    {id: "7",name: "Tian Tian",gender: "F",age:"16",children: "No",residence:"UK"},
+                                                                    {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
+                                                                    {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
+                                                                    {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]}
                         ], status: " 🔴"
                     },
                     {
                         name: "Using Min and Max", layoutItems: [
                             { header: "Examples", subHeader: 'Objective: Learn how to use Min and Max', vModel: "## Find the minimum value of each column \n>>> original_df.min(axis = 0)\n\n## Find the maximum value of each row \n>>> original_df.max(axis = 1) \n" },
-                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Find the minimum value for each row \n\n\n## Find the maximum value for each column \n\n"},
+                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Find the minimum value of each row \n\n\n## Find the maximum value of each column \n\n"},
                             { header: "Original Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
                                                                     {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
@@ -386,7 +404,18 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
-                            { header: "Expected Dataframe", data:[]}
+                            { header: "Expected Dataframe", data:[{id: "1"},
+                                                                    {id: "2"},
+                                                                    {id: "3"},
+                                                                    {id: "4"},
+                                                                    {id: "5"},
+                                                                    {id: "6"},
+                                                                    {id: "7"},
+                                                                    {age:"6"},
+                                                                    {id: "9"},
+                                                                    {id: "10"},
+                                                                    {id: "10"},
+                                                                    {age: "28"}]}
                         ], status: " 🔴"
                     },
                     {
