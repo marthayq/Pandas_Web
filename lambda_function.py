@@ -38,9 +38,16 @@ def lambda_handler(event, context):
         user_list = [x for x in user_list if not x.startswith('#')]
         for i in user_list:
             original_df = pd.eval(i)
-        if isinstance(original_df, pd.core.series.Series):
+            
+        print("THIS IS STRING", original_df)
+        
+        if isinstance(original_df, str):
+            userHtmlFeedback = original_df
+        elif isinstance(original_df, pd.core.series.Series):
            original_df = original_df.to_frame()
-        userHtmlFeedback = original_df.to_html()
+           userHtmlFeedback = original_df.to_html()
+        else:
+            userHtmlFeedback = original_df.to_html()
         
         right_answer_text = "temp"
         isComplete = 0
@@ -59,8 +66,9 @@ def lambda_handler(event, context):
                 isComplete = 1
         elif questionName == 'Selecting Specific Cells':#Q3
             right_answer = default_df.iloc[8]['NAME']
+            print("This is Right Answer", right_answer)
             right_answer_text = 'original_df.iloc[8][\'NAME\']'
-            if(right_answer.equals(original_df)):
+            if(right_answer==original_df):
                 status_check[2]=1
                 isComplete = 1
         elif questionName == 'Renaming Column Names':#Q4
