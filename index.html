@@ -85,9 +85,9 @@
                     }
                     else{
                         this.num_try = 0;
-                        this.html_result = "html_answer";
-                        this.python_result = "python answer";
-                        this.text_result = this.answer.textFeedback;
+                        this.html_result = this.answer.htmlFeedback;
+                        this.python_result = this.answer.pythonFeedback;
+                        this.text_result = "You got it wrong again.\nScroll Below For the Correct Answer.\n\n\n\n\n\n\n\n\n\n\n\n" + this.answer.textFeedback;
                     }
                     this.progress = this.answer.progress * 10;
                     this.$emit('updateprog', this.progress)
@@ -186,10 +186,10 @@
                                     <md-tab id="tab-htmlResults" md-label="HTML results">
                                         <div v-html="html_result" readonly></div>
                                     </md-tab>
-                                    <md-tab id="tab-pythonResults" md-label="Python results">
+                                    <md-tab id="tab-pythonResults" md-label="PYTHON LOGS">
                                         <md-textarea v-model="python_result" readonly></md-textarea>
                                     </md-tab>
-                                    <md-tab id="tab-textResults" md-label="Solution">
+                                    <md-tab id="tab-textResults" md-label="OUTCOME">
                                         <md-textarea v-model="text_result" readonly></md-textarea>
                                     </md-tab>
                                 </md-tabs>
