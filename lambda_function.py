@@ -1,14 +1,31 @@
+# http://alanwsmith.com/capturing-python-log-output-in-a-variable
+
 import json
 import pandas as pd
 import boto3 as bt3
 import re
 import os
 import logging
+import io
 
-logger = logging.getLogger()
+logger = logging.getLogger('basic_logger')
+logger.setLevel(logging.DEBUG)
 
-status_check = [0]*10    
+status_check = [0]*10  
+
 def lambda_handler(event, context):
+    
+    ### Setup the console handler with a StringIO object
+    log_capture_string = io.StringIO()
+    ch = logging.StreamHandler(log_capture_string)
+    ch.setLevel(logging.DEBUG)
+    
+    ### Optionally add a formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    
+    ### Add the console handler to the logger
+    logger.addHandler(ch)
     
     def runCode(myDF, myCode):
         namespace = {'original_df': myDF}
@@ -43,22 +60,27 @@ def lambda_handler(event, context):
         original_df = pd.read_csv('https://frame-pandas.s3.amazonaws.com/pandas_data.csv')
         default_df = original_df.copy()
         
+        errorStatus = False
         # Evaluating User Inputs
-        print("Executing", userSolution)
-        original_df = runCode(original_df, userSolution)
-        print('This is Answer', original_df)
-
-        if isinstance(original_df, str):
-            userHtmlFeedback = original_df
-        elif isinstance(original_df, pd.core.series.Series):
-           original_df = original_df.to_frame()
-           userHtmlFeedback = original_df.to_html()
+        try:
+            original_df = runCode(original_df, userSolution)
+        except:
+            errorStatus = True
+            logger.exception('Debug Message')
+        
+        if not errorStatus:
+            if isinstance(original_df, str):
+                userHtmlFeedback = original_df
+            elif isinstance(original_df, pd.core.series.Series):
+                original_df = original_df.to_frame()
+                userHtmlFeedback = original_df.to_html()
+            else:
+                userHtmlFeedback = original_df.to_html()
         else:
-            userHtmlFeedback = original_df.to_html()
+            userHtmlFeedback = "Error - Please Look at Python Logs"
         
         right_answer_text = "temp"
         isComplete = 0
-        
         
         if questionName == 'Selecting Rows': #Q1
             right_answer = default_df.iloc[[1,4,9]]
@@ -122,9 +144,12 @@ def lambda_handler(event, context):
                 isComplete = 1
         
         progress = status_check.count(1)
-        print(status_check)
-        print(progress)
-        print(logger.info(os.environ))
+        print("Status Check", status_check)
+        print("Progress", progress)
+        
+        ### Pull the contents back into a string and close the stream
+        log_contents = log_capture_string.getvalue()
+        log_capture_string.close()
         
         return {
             "statusCode": 200,
@@ -133,7 +158,7 @@ def lambda_handler(event, context):
                 },
             "body":  json.dumps({
                 "isComplete":isComplete,
-                "pythonFeedback": logger.info(os.environ),
+                "pythonFeedback": log_contents.lower(),
                 "htmlFeedback": userHtmlFeedback,
                 "textFeedback": right_answer_text,
                 "progress": progress,
