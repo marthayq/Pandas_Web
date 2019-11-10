@@ -9,17 +9,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 </head>
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147552064-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-147552064-1');
+</script>
+
 <body>
     <h1>pandas for everyone. 🐼</h1>
     <div id="app">
+        
         <md-progress-bar md-mode="determinate" :md-value="amount"></md-progress-bar>
         <input type="range" v-model.number="amount"> {{ amount }}%
+        
         <md-steppers>
-            <md-step v-for="question in questions" :key=question.name>
+            <md-step v-for="question in questions" :key=question.name md-done=question.status>
                 <doctest-activity v-bind:layout-things=question.layoutItems
-                    v-bind:question-name=question.name @questionhandler="toggleQuestionStatus" @updateprog="updateProgress" />
+                    v-bind:question-name=question.name @updateprog="updateProgress" />
             </md-step>
         </md-steppers>
+        
     </div>
     </div>
 </body>
@@ -225,7 +238,7 @@
                             { header: "Expected Output", data:[{id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "5",name: "Da Mao",gender: "M",age:"11",children: "No",residence:"Canada"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Selecting Columns", layoutItems: [
@@ -251,7 +264,7 @@
                                                                     {id: "8",name: "Yuan Zai",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",residence:"USA"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Selecting Specific Cells", layoutItems: [
@@ -268,7 +281,7 @@
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
                             { header: "Expected Output", data:[{name: "Gu Gu"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Replacing String Occurrences", layoutItems: [
@@ -294,7 +307,7 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"United States"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Filtering Data in Columns", layoutItems: [
@@ -314,7 +327,7 @@
                                                                     {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
                                                                     {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Filtering Data based on Multiple Conditions", layoutItems: [
@@ -336,7 +349,7 @@
                                                                     {id: "6",name: "Lin Hui",gender: "F",age:"18",children: "Yes",residence:"Thailand"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Adding Rows", layoutItems: [
@@ -363,7 +376,7 @@
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"},
                                                                     {id: "11",name: "Tao Tao",gender: "M",age:"20",children: "Yes",residence:"Singapore"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Deleting Rows", layoutItems: [
@@ -387,7 +400,7 @@
                                                                     {id: "7",name: "Tian Tian",gender: "F",age:"16",children: "No",residence:"UK"},
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Finding Min and Max", layoutItems: [
@@ -404,7 +417,7 @@
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
                             { header: "Expected Output", data:[{name: "Bai Yun"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                     {
                         name: "Multiplying and Dividing Column values", layoutItems: [
@@ -430,25 +443,12 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"12",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"40",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"44",children: "Yes",residence:"USA"}]}
-                        ], status: " 🔴"
+                        ], status: true
                     },
                 ]
             }
         },
         methods: {
-            toggleQuestionStatus(response) {
-                const { data, questionName } = response
-                if (data.htmlFeedback) {
-                    const searchText = data.htmlFeedback
-                    searchText.search(/b2d8b2/) !== -1 ?
-                        searchText.search(/#ff9999/) == -1 ?
-                            this.questions.find(item => item.name === questionName).status = " ✔️"
-                            :
-                            this.questions.find(item => item.name === questionName).status = " 🤨"
-                        :
-                        this.questions.find(item => item.name === questionName).status = " 🔴"
-                }
-            },
             updateProgress(progress){
                 this.amount = progress;
             }
