@@ -61,9 +61,11 @@ def lambda_handler(event, context):
         default_df = original_df.copy()
         
         errorStatus = False
+        expected_output = ''
         # Evaluating User Inputs
         try:
             expected_output = runCode(original_df, userSolution)
+            print("User Solution", userSolution)
         except:
             errorStatus = True
             logger.exception('Debug Message')
@@ -145,6 +147,12 @@ def lambda_handler(event, context):
                 status_check[9]=1
                 isComplete = 1
         
+        theMessage = ''   
+        if isComplete:
+            theMessage = "You got it right!\n"
+        else:
+            theMessage = "Incorrect. Please try again.\n"
+        
         progress = status_check.count(1)
         print("Status Check", status_check)
         print("Progress", progress)
@@ -161,7 +169,7 @@ def lambda_handler(event, context):
             "body":  json.dumps({
                 "isComplete":isComplete,
                 "pythonFeedback": log_contents.lower(),
-                "htmlFeedback": right_answer_text + "\n" + userHtmlFeedback,
+                "htmlFeedback": theMessage + userHtmlFeedback,
                 "textFeedback": right_answer_text,
                 "progress": progress,
                 "questionStatus":status_check
