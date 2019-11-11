@@ -223,8 +223,8 @@
                 questions: [
                     {
                         name: "Selecting Rows", layoutItems: [
-                            { header: "Examples", subHeader: 'Objective: Learn how to select rows in dataframe', vModel: "## Select the 5th row \n>>> original_df = original_df.iloc[4]\nNOTE: Python starts from index 0 \n\n## Select the first 3 rows \n>>> original_df = original_df.iloc[0:3]\nNOTE: 0:3 => [0,1,2]\n "},
-                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Select the 2nd, 5th, and 10th row \n\n" },
+                            { header: "Examples", subHeader: 'Objective: Learn how to select rows in dataframe', vModel: "## Select the 5th row \n>>> expected_output = original_df.iloc[4]\nNOTE: Python starts from index 0 \n\n## Select the first 3 rows \n>>> expected_output = original_df.iloc[0:3]\nNOTE: 0:3 => [0,1,2]\n "},
+                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Select the 2nd, 5th, and 10th row \nexpected_output =\n" },
                             { header: "Original Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
                                                                     {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
@@ -242,8 +242,8 @@
                     },
                     {
                         name: "Selecting Columns", layoutItems: [
-                            { header: "Examples", subHeader: 'Objective: Learn how to select columns in dataframe', vModel: "## Select the 4th column \n>>> original_df = original_df.iloc[:,3] \n \n## Select the 'AGE' column \n>>> original_df = original_df['AGE'] \nOR\n>>> original_df =original_df.loc[:,'AGE']\n "},
-                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Select the 'ID','NAME' and 'RESIDENCE' columns\n## HINT: [column1,column2,..]\n\n "},
+                            { header: "Examples", subHeader: 'Objective: Learn how to select columns in dataframe', vModel: "## Select the 4th column \n>>> expected_output = original_df.iloc[:,3] \n \n## Select the 'AGE' column \n>>> expected_output = original_df['AGE'] \nOR\n>>> expected_output =original_df.loc[:,'AGE']\n "},
+                            { header: "Exercise", subHeader: 'Write your code below to modify the Original Dataframe to look like the Expected Output Dataframe.', vModel: "## Select the 'ID','NAME' and 'RESIDENCE' columns\n## HINT: [column1,column2,..]\nexpected_output=\n "},
                             { header: "Original Dataframe", data: [{id: "1",name: "Mei Xiang",gender: "F",age:"20",children:"Yes",residence:"USA"},
                                                                     {id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "3",name: "Bai Yun",gender: "F",age:"28",children: "Yes",residence:"China"},
