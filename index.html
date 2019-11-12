@@ -1,16 +1,6 @@
 <html>
 
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147552064-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'UA-147552064-1');
-    </script>
-
     <meta charset="utf-8">
     <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -18,6 +8,15 @@
     <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css" />
 </head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147552064-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-147552064-1');
+</script>
 
 
 <body>
@@ -30,8 +29,7 @@
         <md-steppers>
             <md-step v-for="question in questions" :key="question.name" :md-done="question.status">
                 <doctest-activity v-bind:layout-things=question.layoutItems
-                    v-bind:question-name=question.name :question-status=question.status 
-                    @updateprog="updateProgress" />
+                    v-bind:question-name=question.name :question-status=question.status @updateprog="updateProgress" />
             </md-step>
         </md-steppers>
         
@@ -98,7 +96,7 @@
                     else if (this.num_try < 3){
                         this.html_result = this.answer.htmlFeedback;
                         this.python_result = this.answer.pythonFeedback;
-                        this.text_result = "Let's give it a few more times. You can do it!";
+                        this.text_result = "Let's give it a few more times. You can do it";
                     }
                     else{
                         this.num_try = 0;
@@ -107,7 +105,7 @@
                         this.text_result = "You got it wrong again.\nScroll Below For the Correct Answer.\n\n\n\n\n\n\n\n\n\n\n\n" + this.answer.textFeedback;
                     }
                     this.progress = this.answer.progress * 10;
-                    return this.$emit('updateprog', {"progress" : this.progress, "state" : this.questionState})
+                    return this.$emit('updateprog', {"progress" : this.progress, "state" : this.questionState, "question" : this.title})
                 })
             }
         },
@@ -242,7 +240,7 @@
                             { header: "Expected Output", data:[{id: "2",name: "Bei Bei",gender: "M",age:"4",children: "No",residence:"USA"},
                                                                     {id: "5",name: "Da Mao",gender: "M",age:"11",children: "No",residence:"Canada"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]}
-                        ], status: true
+                        ], status: false
                     },
                     {
                         name: "Selecting First/Last Rows", layoutItems: [
@@ -262,7 +260,7 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"12",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"40",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"44",children: "Yes",residence:"USA"}]}
-                        ], status: true
+                        ], status: false
                     },
                     {
                         name: "Selecting Columns", layoutItems: [
@@ -288,7 +286,7 @@
                                                                     {id: "8",name: "Yuan Zai",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",residence:"USA"}]}
-                        ], status: true
+                        ], status: false
                     },
                     {
                         name: "Selecting Specific Cells", layoutItems: [
@@ -305,7 +303,7 @@
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"USA"}]},
                             { header: "Expected Output", data:[{name: "Gu Gu"}]}
-                        ], status: true
+                        ], status: false
                     },
                     {
                         name: "Replacing String Occurrences", layoutItems: [
@@ -331,7 +329,7 @@
                                                                     {id: "8",name: "Yuan Zai",gender: "F",age:"6",children: "No",residence:"Taiwan"},
                                                                     {id: "9",name: "Gu Gu",gender: "M",age:"20",children: "No",residence:"China"},
                                                                     {id: "10",name: "Lun Lun",gender: "F",age:"22",children: "Yes",residence:"United States"}]}
-                        ], status: true
+                        ], status: false
                     },
                     {
                         name: "Filtering Data in Columns", layoutItems: [
@@ -448,8 +446,9 @@
         },
         methods: {
             updateProgress(response){
-                const { progress, questionState } = response
+                const { progress, questionState, questionName } = response
                 this.amount = progress;
+                this.questions.find(item => item.name === questionName).status = questionState;
             }
         }
     })
