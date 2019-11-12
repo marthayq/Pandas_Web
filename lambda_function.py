@@ -146,12 +146,12 @@ def lambda_handler(event, context):
             if(right_answer.equals(expected_output)):
                 status_check[9]=1
                 isComplete = 1
-        
+                
         theMessage = ''   
         if isComplete:
-            theMessage = "You got it right!\n"
+            theMessage = "<div>You got it right!</div><br>"
         else:
-            theMessage = "Incorrect. Please try again.\n"
+            theMessage = "<div>Incorrect. Please try again.</div><br>"
         
         progress = status_check.count(1)
         print("Status Check", status_check)
@@ -161,6 +161,12 @@ def lambda_handler(event, context):
         log_contents = log_capture_string.getvalue()
         log_capture_string.close()
         
+        theOutput = ''
+        if errorStatus:
+            theOutput = log_contents.lower();
+        else:
+            theOutput = "Great Job! There is no error messages."
+        
         return {
             "statusCode": 200,
             "headers": {
@@ -168,8 +174,8 @@ def lambda_handler(event, context):
                 },
             "body":  json.dumps({
                 "isComplete":isComplete,
-                "pythonFeedback": log_contents.lower(),
-                "htmlFeedback": theMessage + userHtmlFeedback,
+                "htmlFeedback": theMessage  + userHtmlFeedback,
+                "pythonFeedback": theOutput,
                 "textFeedback": right_answer_text,
                 "progress": progress,
                 "questionStatus":status_check
