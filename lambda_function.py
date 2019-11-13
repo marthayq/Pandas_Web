@@ -148,7 +148,7 @@ def lambda_handler(event, context):
         elif questionName == 'Finding Min and Max':#Q9
             right_answer = default_df['NAME'].min()
             right_answer_text = 'expected_output[\'NAME\'].min()'
-            if(right_answer.equals(expected_output)):
+            if(right_answer == expected_output):
                 status_check[9]=1
                 isComplete = 1
                 
