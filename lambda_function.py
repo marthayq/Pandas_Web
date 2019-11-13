@@ -1,72 +1,69 @@
-# This activity requires Python 3.7 runtime
-# -*- coding: utf-8 -*-
+# http://alanwsmith.com/capturing-python-log-output-in-a-variable
+import requests
 import json
-import traceback
-import doctest
-
+import pandas as pd
+import boto3 as bt3
 import re
+import os
+import logging
+import io
+import numpy as np
+from datetime import datetime
 
-import signal
-import time
+logger = logging.getLogger('basic_logger')
+logger.setLevel(logging.DEBUG)
 
+status_check = [0]*10  
+dynamodb = bt3.resource('dynamodb')
+
+def save_log(logData):
+    # Comment out one or both of these
+    result = save_dynamodb_log(logData)
+
+    return result
     
+
+def save_dynamodb_log(logData):
+    timestamp = str(datetime.utcnow().timestamp())
+
+    table = dynamodb.Table('loggingTable')
+    
+    log = logData.copy() # A shallow copy
+    log['itemId'] = str(timestamp) #str(uuid.uuid1()) for more granular keys
+    log['createdAt'] = timestamp
+    
+
+    # write logData to dynamoDB
+    table.put_item(Item=log)
+    return logData
+
+
 def lambda_handler(event, context):
     
-    def run_local(requestDict):
-      byteCodeChecker = "\ndef byteCodeChecker(function, field, value):\n import dis\n byteCode = dis.Bytecode(function)\n fields = {'OPNAME':0, 'ARGREPR':3} \n for instruction in byteCode:\n  if instruction[fields[field]] == value:\n   return f'found {value}'\n else:\n  return f'{value} not found'"
-      codeInfoChecker = "\ndef codeInfoChecker(function, value):\n import dis\n codeInfo = dis.code_info(function)\n if value in codeInfo:\n  return f'found {value}'\n else:\n  return f'{value} not found'"
-      solution = requestDict['solution'] + codeInfoChecker + byteCodeChecker
-      tests = requestDict['tests']  
-      import io
-      import sys
-      output = io.StringIO()
-      sys.stdout = output
-      
-      try:
-        namespace = {}
-        compiled = compile('import json', 'submitted code', 'exec')
-        exec(compiled, namespace)
-        compiled = compile(solution, 'submitted code', 'exec')
-        exec(compiled, namespace)
-        namespace['YOUR_SOLUTION'] = solution.strip()
-        namespace['LINES_IN_YOUR_SOLUTION'] = len(solution.strip().splitlines())
-        test_cases = doctest.DocTestParser().get_examples(tests)
-        execute_test_cases(test_cases, namespace)
-        results, solved = execute_test_cases(test_cases, namespace)
-        printed = output.getvalue()
-        responseDict = {"solved": solved , "results": results, "printed":printed}
-        responseJSON = json.dumps(responseDict)
-        return responseJSON
-      except:
-        errors = traceback.format_exc()
-        responseDict = {'errors': '%s' % errors}
-        responseJSON = json.dumps(responseDict)
-        return responseJSON
+    ### Setup the console handler with a StringIO object
+    log_capture_string = io.StringIO()
+    ch = logging.StreamHandler(log_capture_string)
+    ch.setLevel(logging.DEBUG)
     
-    def execute_test_cases(testCases, namespace):
-      resultList = []
-      solved = True
-      for e in testCases:
-        if not e.want:
-          exec(e.source) in namespace
-          continue
-        call = e.source.strip()
-        got = eval(call, namespace)
-        expected = eval(e.want, namespace)
-        correct = True
-        if got == expected:
-          correct = True
-        else:
-          correct = solved = False
-        resultDict = {'call': call, 'expected': expected, 'received': "%(got)s" % {'got': got}, 'correct': correct}
-        resultList.append(resultDict)
-      return resultList, solved
+    ### Optionally add a formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
     
+    ### Add the console handler to the logger
+    logger.addHandler(ch)
+    
+    def runCode(myDF, myCode):
+        namespace = {'original_df': myDF, 'expected_output': ''}
+        exec('import pandas as pd', namespace)
+        exec(myCode, namespace)
+        return namespace['expected_output']
+    
+    s3 = bt3.client('s3')
     method = event.get('httpMethod',{}) 
     
     with open('index.html', 'r') as f:
         indexPage = f.read()
-        
+    
     
     if method == 'GET':
         return {
@@ -78,128 +75,141 @@ def lambda_handler(event, context):
         }
         
     if method == 'POST':
-        import re
         bodyContent = event.get('body',{}) 
         parsedBodyContent = json.loads(bodyContent)
         testCases = re.sub('&zwnj;.*&zwnj;','',parsedBodyContent["shown"]["0"], flags=re.DOTALL) 
-        solution = parsedBodyContent["editable"]["0"] 
-
-        timeout = False
-        # handler function that tell the signal module to execute
-        # our own function when SIGALRM signal received.
-        def timeout_handler(num, stack):
-            print("Received SIGALRM")
-            raise Exception("processTooLong")
-
-        # register this with the SIGALRM signal    
-        signal.signal(signal.SIGALRM, timeout_handler)
+        userSolution = parsedBodyContent["editable"]["0"] 
+        questionName = parsedBodyContent["qname"]["0"]
         
-        # signal.alarm(10) tells the OS to send a SIGALRM after 10 seconds from this point onwards.
-        signal.alarm(10)
-
-        # After setting the alarm clock we invoke the long running function.
+        # Reading the original dataframe from S3 
+        original_df = pd.read_csv('https://frame-pandas.s3.amazonaws.com/pandas_data.csv')
+        default_df = original_df.copy()
+        
+        errorStatus = False
+        expected_output = ''
+        # Evaluating User Inputs
         try:
-            jsonResponse = run_local({"solution": solution, "tests": testCases})
-        except Exception as ex:
-            if "processTooLong" in ex:
-                timeout = True
-                print("processTooLong triggered")
-        # set the alarm to 0 seconds after all is done
-        finally:
-            signal.alarm(0)
-
-        jsonResponseData = json.loads(jsonResponse)
-        
-        solvedStatusText = expectedText = receivedText = callText = textResults = tableContents = ""
-        overallResults = """<span class="md-subheading">All tests passed: {0}</span><br/>""".format(str(jsonResponseData.get("solved")))
-        numTestCases = len(re.findall('>>>', testCases))
-        resultContent = jsonResponseData.get('results') 
-        textBackgroundColor = "#ffffff"
-        
-        if resultContent:
-            for i in range(len(resultContent)):
-                expectedText = resultContent[i]["expected"]
-                receivedText = resultContent[i]["received"]
-                correctText = resultContent[i]["correct"]
-                callText = resultContent[i]["call"]
-                if str(expectedText) == str(receivedText):
-                    textResults = textResults + "\nHurray! You have passed the test case. You called {0} and received {1} against the expected value of {2}.\n".format(callText, receivedText, expectedText)
-                    textBackgroundColor = "#b2d8b2"
-                else:
-                    textResults = textResults + "\nThe test case eludes your code so far but try again! You called {0} and received {1} against the expected value of {2}.\n".format(callText, receivedText, expectedText)
-                    textBackgroundColor = "#ff9999"
-                tableContents = tableContents + """
-                <tr bgcolor={4}>
-                    <td>{0}</td>
-                    <td>{1}</td>
-                    <td>{2}</td>
-                    <td>{3}</td>
-                </tr>
-                """.format(callText,expectedText,receivedText,correctText,textBackgroundColor)
-        solvedStatusText = str(jsonResponseData.get("solved")) or "error"
-        textResults = """All tests passed: {0}\n""".format(solvedStatusText) + textResults
-        if not resultContent:
-            textResults = "Your test is passing but something is incorrect..."
+            expected_output = runCode(original_df, userSolution)
             
-        if timeout or jsonResponseData.get("errors"):
-            textResults = "An error - probably related to code syntax - has occured. Do look through the JSON results to understand the cause."
-            tableContents = """
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td>error</td>
-                    <td></td>
-                </tr>
-                """
-        htmlResults="""
-            <html>
-                <head>
-                    <meta charset="utf-8">
-                    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
-                </head>
-                <body>
-                    <div>
-                        {0}
-                        <span class="md-subheading tableTitle">Tests</span>
-                        <table>
-                             <thead>
-                                <tr>
-                                    <th>Called</th>
-                                    <th>Expected</th>
-                                    <th>Received</th>
-                                    <th>Correct</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {1}
-                            </tbody>
-                        </table>
-                    </div>
-                </body>
-                <style>
-                br {{
-                    display:block;
-                    content:"";
-                    margin:1rem
-                }}
-                table{{
-                    text-align:center
-                }}
-                .tableTitle{{
-                    text-decoration:underline
-                }}
-                </style>
-            </html>
-            """.format(overallResults,tableContents)
+            if isinstance(expected_output , str):
+                userHtmlFeedback = expected_output
+            elif isinstance(expected_output,np.integer):
+                panda_df = pd.DataFrame(data=expected_output.flatten())
+                userHtmlFeedback = panda_df.to_html()
+            elif isinstance(expected_output, pd.core.series.Series):
+                expected_output = expected_output.to_frame()
+                userHtmlFeedback = expected_output.to_html()
+            else:
+                userHtmlFeedback = expected_output.to_html()
+
+                
+        except:
+            errorStatus = True
+            logger.exception('Debug Message')
+        
+        if not errorStatus:
+            pass
+        else:
+            userHtmlFeedback = "Error - Please Look at Python Logs"
+        
+        right_answer_text = "temp"
+        isComplete = 0
+        
+        if questionName == 'Selecting Rows': #Q1
+            right_answer = default_df.iloc[[1,4,9]]
+            right_answer_text = 'expected_output.iloc[[1,4,9]]'
+            if(right_answer.equals(expected_output)):
+                status_check[0]=1
+                isComplete = 1
+        elif questionName == 'Selecting First/Last Rows':#Q10
+            right_answer = default_df.tail(3)
+            right_answer_text = '10*expected_output.tail(3)'
+            if(right_answer.equals(expected_output)):
+                status_check[1]=1
+                isComplete = 1
+        elif questionName == 'Selecting Columns':#Q2
+            right_answer = default_df[['ID','NAME','RESIDENCE']]
+            right_answer_text = 'expected_output[[\'ID\',\'NAME\',\'RESIDENCE\']]'
+            if(right_answer.equals(expected_output)):
+                status_check[2]=1
+                isComplete = 1
+        elif questionName == 'Selecting Specific Cells':#Q3
+            right_answer = default_df.iloc[8]['NAME']
+            right_answer_text = 'expected_output.iloc[8][\'NAME\']'
+            if(right_answer==(expected_output)):
+                status_check[3]=1
+                isComplete = 1
+        elif questionName == 'Replacing String Occurrences':#Q4
+            right_answer = default_df.replace(["F","M"],["Female","Male"])
+            right_answer_text = 'expected_output.replace("USA","United States")'
+            if(right_answer.equals(expected_output)):
+                status_check[4]=1
+                isComplete = 1
+        elif questionName == 'Filtering Data in Columns':#Q5
+            right_answer = default_df[default_df['CHILDREN']=='Yes']
+            right_answer_text = 'expected_output[original_df[\'CHILDREN\']==\'Yes\']'
+            if(right_answer.equals(expected_output)):
+                status_check[5]=1
+                isComplete = 1
+        elif questionName == 'Filtering Data based on Multiple Conditions':#Q6
+            right_answer = default_df[(default_df['RESIDENCE']=='China')|(default_df['AGE']>15)]
+            right_answer_text = 'expected_output[(original_df[\'RESIDENCE\']==\'China\')|(original_df[\'AGE\']>\'15\')]'
+            if(right_answer.equals(expected_output)):
+                status_check[6]=1
+                isComplete = 1
+        elif questionName == 'Dropping Columns and Rows':#Q7
+            right_answer = default_df.drop([4,9],axis=0)
+            right_answer_text = 'expected_output.drop([4,9],axis=0)'
+            if(right_answer.equals(expected_output)):
+                status_check[7]=1
+                isComplete = 1
+        elif questionName == 'Sorting Values by Column':#Q8
+            right_answer = default_df.sort_values(by='AGE',ascending=False)
+            right_answer_text = 'expected_output.sort_values(by=\'AGE\',ascending=False)'
+            if(right_answer.equals(expected_output)):
+                status_check[8]=1
+                isComplete = 1
+        elif questionName == 'Finding Min and Max':#Q9
+            right_answer = default_df['NAME'].min()
+            right_answer_text = 'expected_output[\'NAME\'].min()'
+            if(right_answer == expected_output):
+                status_check[9]=1
+                isComplete = 1
+                
+        theMessage = ''   
+        if isComplete:
+            theMessage = "<div>You got it right!</div><br>"
+        else:
+            theMessage = "<div>Incorrect. Please try again.</div><br>"
+        
+        progress = status_check.count(1)
+        print("Status Check", status_check)
+        print("Progress", progress)
+        
+        ### Pull the contents back into a string and close the stream
+        log_contents = log_capture_string.getvalue()
+        log_capture_string.close()
+        
+        theOutput = ''
+        if errorStatus:
+            theOutput = log_contents.lower();
+        else:
+            theOutput = "Great Job! There is no error messages."
+        
+        body = json.loads(event.get('body','{}'))
+ 
+        result = save_log(body)
         return {
             "statusCode": 200,
             "headers": {
             "Content-Type": "application/json",
                 },
             "body":  json.dumps({
-                "isComplete":jsonResponseData.get("solved"),
-                "jsonFeedback": jsonResponse,
-                "htmlFeedback": htmlResults,
-                "textFeedback": textResults
+                "isComplete":isComplete,
+                "htmlFeedback": theMessage  + userHtmlFeedback,
+                "pythonFeedback": theOutput,
+                "textFeedback": right_answer_text,
+                "progress": progress,
+                "questionStatus":status_check
             })
-            }
+        }
