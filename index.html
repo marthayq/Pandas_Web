@@ -29,7 +29,7 @@
         <md-steppers>
             <md-step v-for="question in questions" :key="question.name" :md-done="question.status">
                 <doctest-activity v-bind:layout-things=question.layoutItems
-                    v-bind:question-name=question.name :question-status=question.status @updateprog="updateProgress" />
+                    v-bind:question-name=question.name @updateprog="updateProgress" />
             </md-step>
         </md-steppers>
         
@@ -105,7 +105,8 @@
                         this.text_result = "You got it wrong again.\nScroll Below For the Correct Answer.\n\n\n\n\n\n\n\n\n\n\n\n" + this.answer.textFeedback;
                     }
                     this.progress = this.answer.progress * 10;
-                    return this.$emit('updateprog', {"progress" : this.progress, "state" : this.questionState, "question" : this.title})
+                    console.log("Hello World", this.questionName)
+                    return this.$emit('updateprog', {"progress" : this.progress, "state" : this.questionState, "question" : this.questionName})
                 })
             }
         },
