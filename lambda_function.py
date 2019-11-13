@@ -1,5 +1,5 @@
 # http://alanwsmith.com/capturing-python-log-output-in-a-variable
-
+import requests
 import json
 import pandas as pd
 import boto3 as bt3
@@ -8,11 +8,35 @@ import os
 import logging
 import io
 import numpy as np
+from datetime import datetime
 
 logger = logging.getLogger('basic_logger')
 logger.setLevel(logging.DEBUG)
 
 status_check = [0]*10  
+dynamodb = bt3.resource('dynamodb')
+
+def save_log(logData):
+    # Comment out one or both of these
+    result = save_dynamodb_log(logData)
+
+    return result
+    
+
+def save_dynamodb_log(logData):
+    timestamp = str(datetime.utcnow().timestamp())
+
+    table = dynamodb.Table('loggingTable')
+    
+    log = logData.copy() # A shallow copy
+    log['itemId'] = str(timestamp) #str(uuid.uuid1()) for more granular keys
+    log['createdAt'] = timestamp
+    
+
+    # write logData to dynamoDB
+    table.put_item(Item=log)
+    return logData
+
 
 def lambda_handler(event, context):
     
@@ -172,6 +196,9 @@ def lambda_handler(event, context):
         else:
             theOutput = "Great Job! There is no error messages."
         
+        body = json.loads(event.get('body','{}'))
+ 
+        result = save_log(body)
         return {
             "statusCode": 200,
             "headers": {
