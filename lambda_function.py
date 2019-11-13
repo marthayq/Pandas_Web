@@ -77,6 +77,7 @@ def lambda_handler(event, context):
                 userHtmlFeedback = expected_output.to_html()
             else:
                 userHtmlFeedback = expected_output.to_html()
+
                 
         except:
             errorStatus = True
