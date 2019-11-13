@@ -93,21 +93,35 @@
                         this.python_result = this.answer.pythonFeedback;
                         this.text_result = "Congratulations!";
                         this.questionState = " ✔️";
+                        this.log({"event":"correct", "problem":this.questionName})
                     }
                     else if (this.num_try < 3){
                         this.html_result = this.answer.htmlFeedback;
                         this.python_result = this.answer.pythonFeedback;
                         this.text_result = "Let's give it a few more times. You can do it";
+                        this.log({"event":"wrong", "problem":this.questionName})
                     }
                     else{
                         this.num_try = 0;
                         this.html_result = this.answer.htmlFeedback;
                         this.python_result = this.answer.pythonFeedback;
                         this.text_result = "You got it wrong again.\nScroll Below For the Correct Answer.\n\n\n\n\n\n\n\n\n\n\n\n" + this.answer.textFeedback;
+                        this.log({"event":"wrong", "problem":this.questionName})
                     }
                     this.progress = this.answer.progress * 10;
                     return this.$emit('updateprog', {"progress" : this.progress, "state" : this.questionState, "question" : this.questionName})
                 })
+            },
+            log: function(event){
+                console.log('Logging event.');
+                fetch('./', {
+                    method: 'post',
+                    body: JSON.stringify(event)
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    console.log('logged event', data);
+                });               
             }
         },
         template:
